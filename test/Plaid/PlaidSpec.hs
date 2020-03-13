@@ -1,14 +1,14 @@
 module Plaid.PlaidSpec (spec) where
 
-import qualified Control.Error            as ER
-import           Data.Api.TestByteStrings
-import           Data.ByteString.Char8    (unpack)
-import           Data.Common
-import           Data.Either              (isRight)
+import qualified Control.Error as ER
+import           Data.Aeson (FromJSON (..), ToJSON (..), eitherDecode')
+import           Data.ByteString.Char8 (unpack)
+import           Data.ByteString.Lazy (ByteString, toStrict)
+import           Data.Either (isRight)
 import           Data.Plaid
-import qualified Data.Text                as T
-import           Data.Time                (fromGregorian)
-import           Debug.Trace
+import           Data.Text (Text)
+import qualified Data.Text as T
+import           Data.Time (fromGregorian)
 import           Test.Hspec
 
 _runTestGetRequest :: PlaidHttp m => Text -> m ByteString
@@ -41,7 +41,7 @@ publicTokenBody =
     --   "user_good"
     --   "pass_good"
     -- )
-    
+
 spec :: Spec
 spec = do
   describe "Create public token" $ do

@@ -18,4 +18,4 @@ module Data.Plaid
   ) where
 
 import           Data.Api.Plaid
-import           Data.Api.Types hiding (Plaid, PlaidTest, envUrl, requestMap, runTestPlaid)
+import           Data.Api.Types hiding (Plaid, PlaidTest, envUrl, requestMap)
