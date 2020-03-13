@@ -1,6 +1,6 @@
 cabal-version: 1.12
 name:           plaid
-version:        0.1.0.1
+version:        0.1.0.2
 synopsis:       Plaid.com api integration library
 description: @Plaid@ is a library for interacting with https://plaid.com
   .
