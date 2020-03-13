@@ -1,4 +1,4 @@
-{-# OPTIONS_HADDOCK hide, prune, ignore-exports #-}
+{-# OPTIONS_HADDOCK hide #-}
 module Data.Common
   ( module Data.Api.Types
   , module Data.Api.Helper

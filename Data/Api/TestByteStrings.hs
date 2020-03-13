@@ -1,3 +1,4 @@
+{-# OPTIONS_HADDOCK hide #-}
 {-# LANGUAGE QuasiQuotes #-}
 
 module Data.Api.TestByteStrings where

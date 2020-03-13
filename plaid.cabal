@@ -1,6 +1,6 @@
 cabal-version: 1.12
 name:           plaid
-version:        0.1.0.0
+version:        0.1.0.1
 synopsis:       Plaid.com api integration library
 description: @Plaid@ is a library for interacting with https://plaid.com
   .
@@ -31,8 +31,6 @@ source-repository head
 library
   exposed-modules:
       Data.Plaid
-      Data.Common
-      Data.Api.TestByteStrings
   other-modules:
       Data.Api.Helper
       Data.Api.InternalPure
@@ -52,6 +50,8 @@ library
       Data.Proof.Named
       Data.Proof.Proof
       Data.Proof.PublicTokenCreate
+      Data.Common
+      Data.Api.TestByteStrings
 
   ghc-options: -Wall
   build-depends:
