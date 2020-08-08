@@ -304,7 +304,7 @@ $(deriveJSON (defaultOptions { fieldLabelModifier = quietSnake . drop 12 }) ''Cu
 
 data Balance =
   Balance
-    { balanceAvailable              :: Double
+    { balanceAvailable              :: Maybe Double
     , balanceCurrent                :: Double
     , balanceLimit                  :: Maybe Double
     , balanceIsoCurrencyCode        :: CurrencyCode
@@ -319,7 +319,7 @@ data Account =
     , accountBalances     :: Balance
     , accountMask         :: Text
     , accountName         :: Text
-    , accountOfficialName :: Text
+    , accountOfficialName :: Maybe Text
     , accountSubtype      :: Text
     , accountType         :: Text
     } deriving (Eq, Show)
