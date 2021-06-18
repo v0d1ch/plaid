@@ -156,6 +156,7 @@ exampleRetrieveTransactionsRequest = do
            (Just defPaginationOptions)
         )
     lift $ plaidGetTransactions transactionBody
+
 -- | POST /income/get
 -- http://plaid.com/docs/#income
 exampleIncomeRequest

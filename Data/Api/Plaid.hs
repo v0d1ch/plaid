@@ -4,6 +4,7 @@ module Data.Api.Plaid
   , mkGetBalanceEnv
   , mkGetAuthEnv
   , mkCreateTransactionsGetEnv
+  , mkCreateTransactionsRefreshEnv
   , mkCreateIdentityGetEnv
   , mkCreateIncomeGetEnv
   , plaidCreatePublicToken
@@ -11,6 +12,7 @@ module Data.Api.Plaid
   , plaidGetAuth
   , plaidGetBalance
   , plaidGetTransactions
+  , plaidRefreshTransactions
   , plaidGetIdentity
   , plaidGetIncome
   , module Data.Api.TestByteStrings
@@ -22,7 +24,8 @@ import           Data.Api.Identity (plaidGetIdentity)
 import           Data.Api.Income (plaidGetIncome)
 import           Data.Api.InternalPure (mkCreateIdentityGetEnv, mkCreateIncomeGetEnv,
                                         mkCreatePublicTokenEnv, mkCreateTransactionsGetEnv,
-                                        mkExchangePublicTokenEnv, mkGetAuthEnv, mkGetBalanceEnv)
+                                        mkCreateTransactionsRefreshEnv, mkExchangePublicTokenEnv,
+                                        mkGetAuthEnv, mkGetBalanceEnv)
 import           Data.Api.Link (plaidCreatePublicToken, plaidExchangeToken)
 import           Data.Api.TestByteStrings
-import           Data.Api.Transactions (plaidGetTransactions)
+import           Data.Api.Transactions (plaidGetTransactions, plaidRefreshTransactions)

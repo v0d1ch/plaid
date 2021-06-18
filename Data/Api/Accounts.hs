@@ -12,7 +12,6 @@ module Data.Api.Accounts
   ( plaidGetBalance
   ) where
 
-import           Data.Api.Types (executePost)
 import           Data.Common
 
 -- | Get the account balance

@@ -5,24 +5,23 @@
 module Data.Api.Types where
 
 import           Control.Exception.Safe
-import           Control.Monad.IO.Class   (MonadIO, liftIO)
-import           Control.Monad.Reader     (MonadReader (..), ReaderT (..))
+import           Control.Monad.IO.Class (MonadIO, liftIO)
+import           Control.Monad.Reader (MonadReader (..), ReaderT (..))
 import           Data.Aeson
 import           Data.Aeson.TH
 import           Data.Api.TestByteStrings
-import           Data.ByteString.Lazy     (ByteString)
+import           Data.ByteString.Lazy (ByteString)
 import           Data.Fixed
 import           Data.Functor.Identity
-import qualified Data.Map                 as M
-import           Data.Maybe               (isJust, isNothing)
-import           Data.Monoid              ((<>))
-import           Data.Text                (Text)
-import qualified Data.Text                as T
-import           Data.Time                (Day)
+import qualified Data.Map as M
+import           Data.Maybe (isJust, isNothing)
+import           Data.Text (Text)
+import qualified Data.Text as T
+import           Data.Time (Day)
 import           Lens.Micro
 import           Lens.Micro.TH
 import           Network.HTTP.Conduit
-import           Text.Casing              (camel, quietSnake)
+import           Text.Casing (camel, quietSnake)
 
 data Environment
   = Sandbox
@@ -132,6 +131,7 @@ data GetBalance
 data PublicTokenCreate
 data PlaidTokenExchange
 data PlaidTransactionsGet
+data PlaidTransactionsRefresh
 data PlaidIdentityGet
 data PlaidIncomeGet
 
@@ -249,6 +249,13 @@ instance ToJSON (PlaidBody PlaidTransactionsGet) where
     where
       perhapsSendObject =
         ["options" .= toJSON (b ^. plaidBodyPaginationOptions) | isJust (b ^. plaidBodyPaginationOptions)]
+
+instance ToJSON (PlaidBody PlaidTransactionsRefresh) where
+  toJSON b =
+    object [ "client_id"    .= (b ^. plaidBodyEnv . plaidEnvClientId)
+           , "secret"       .= (b ^. plaidBodyEnv . plaidEnvSecret)
+           , "access_token" .= (b ^. plaidBodyPublicToken)
+           ]
 
 instance ToJSON (PlaidBody PlaidIdentityGet) where
   toJSON b =
@@ -460,11 +467,11 @@ $(deriveJSON (defaultOptions { fieldLabelModifier = quietSnake . drop 11 }) ''Tr
 
 data PlaidTransactionsGetResponse =
   PlaidTransactionsGetResponse
-    { _plaidTransactionsGetResponseAccounts     :: [Account]
-    , _plaidTransactionsGetResponseTransactions :: [Transaction]
-    , _plaidTransactionsGetResponseItem                    :: Item
-    , _plaidTransactionsGetResponseTotalTransactions       :: Int
-    , _plaidTransactionsGetResponseRequestId               :: Text
+    { _plaidTransactionsGetResponseAccounts          :: [Account]
+    , _plaidTransactionsGetResponseTransactions      :: [Transaction]
+    , _plaidTransactionsGetResponseItem              :: Item
+    , _plaidTransactionsGetResponseTotalTransactions :: Int
+    , _plaidTransactionsGetResponseRequestId         :: Text
     } deriving (Eq, Show)
 
 makeLenses ''PlaidTransactionsGetResponse
@@ -479,6 +486,20 @@ instance FromJSON PlaidTransactionsGetResponse where
       <*> o .: "item"
       <*> o .: "total_transactions"
       <*> o .: "request_id"
+
+data PlaidTransactionsRefreshResponse =
+  PlaidTransactionsRefreshResponse
+    { _plaidTransactionsRefreshResponseRequestId :: Text
+    } deriving (Eq, Show)
+
+makeLenses ''PlaidTransactionsRefreshResponse
+
+$(deriveToJSON (defaultOptions { fieldLabelModifier = camel . drop 32 }) ''PlaidTransactionsRefreshResponse)
+
+instance FromJSON PlaidTransactionsRefreshResponse where
+  parseJSON = withObject "PlaidTransactionsRefreshResponse" $ \o ->
+    PlaidTransactionsRefreshResponse
+      <$> o .: "request_id"
 
 data PlaidAuthGetResponse =
   PlaidAuthGetResponse
@@ -689,6 +710,7 @@ requestMap =
   M.fromList
     [ ("/auth/get", responseAuthGet)
     , ("/transactions/get", responseTransactionsGet)
+    , ("/transactions/refresh", responseTransactionsRefresh)
     , ("/public_token/create", responsePublicTokenCreate)
     , ("/item/public_token/exchange", responsePublicTokenExchange)
     , ("/identity/get", identityJson)

@@ -2,7 +2,6 @@ module Data.Api.Auth
   ( plaidGetAuth
   ) where
 
-import           Data.Api.Types (executePost)
 import           Data.Common
 
 plaidGetAuth

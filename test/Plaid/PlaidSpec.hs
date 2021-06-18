@@ -7,6 +7,7 @@ import           Data.ByteString.Lazy (ByteString, toStrict)
 import           Data.Either (isRight)
 import           Data.Plaid
 import           Data.Text (Text)
+import           Control.Monad.IO.Class (liftIO)
 import qualified Data.Text as T
 import           Data.Time (fromGregorian)
 import           Test.Hspec
@@ -112,6 +113,30 @@ spec = do
               runTestPlaid $ runTestPostRequest "/transactions/get" transactionBody
         ER.hoistEither (checkResult transactionsGetResult :: Either PlaidError PlaidTransactionsGetResponse)
       isRight testResult `shouldBe` True
+
+  describe "Transactions refresh" $ do
+    it "/transactions/refresh" $ do
+      let result = runTestPlaid $ runTestPostRequest "/public_token/create" publicTokenBody
+      testResult <- ER.runExceptT $ do
+        PlaidPublicTokenResponse {..} <- ER.hoistEither (checkResult result :: Either PlaidError PlaidPublicTokenResponse)
+        exchangeBody <- ER.hoistEither (mkExchangePublicTokenEnv env _plaidPublicTokenResponsePublicToken)
+        let result' = runTestPlaid $ runTestPostRequest "/item/public_token/exchange" exchangeBody
+        PlaidAccessTokenResponse {..} <- ER.hoistEither (checkResult result' :: Either PlaidError PlaidAccessTokenResponse)
+        authBody <- ER.hoistEither (mkGetAuthEnv env _plaidAccessTokenResponseAccessToken)
+        let authGetResult = runTestPlaid $ runTestPostRequest "/auth/get" authBody
+        PlaidAuthGetResponse {..} <- ER.hoistEither (checkResult authGetResult :: Either PlaidError PlaidAuthGetResponse)
+        transactionBody <-
+          ER.hoistEither (mkCreateTransactionsRefreshEnv
+                           env
+                           _plaidAccessTokenResponseAccessToken
+                         )
+
+        let transactionsGetResult =
+              runTestPlaid $ runTestPostRequest "/transactions/refresh" transactionBody
+        liftIO $ print transactionsGetResult
+        ER.hoistEither (checkResult transactionsGetResult :: Either PlaidError PlaidTransactionsRefreshResponse)
+      isRight testResult `shouldBe` True
+
   describe "Balance json" $ do
     it "should be able to decode Balance" $ do
       let result = eitherDecode' balanceJson :: Either String Balance

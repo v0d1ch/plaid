@@ -4,6 +4,7 @@ module Data.Api.InternalPure
   , mkGetBalanceEnv
   , mkGetAuthEnv
   , mkCreateTransactionsGetEnv
+  , mkCreateTransactionsRefreshEnv
   , mkCreateIdentityGetEnv
   , mkCreateIncomeGetEnv
   ) where
@@ -97,6 +98,23 @@ mkCreateTransactionsGetEnv env accessToken startDate endDate options paginationO
 
               in either (Left . PlaidError) (const (Right body)) proof
   ))))))
+
+-- | Creates request body for /transactions/refresh call
+-- https://plaid.com/docs/api/products/#transactionsrefresh
+mkCreateTransactionsRefreshEnv
+  :: PlaidEnv
+  -> AccessToken
+  -> Either PlaidError (PlaidBody PlaidTransactionsRefresh)
+mkCreateTransactionsRefreshEnv env accessToken =
+  name env (\namedEnv ->
+    name accessToken (\namedAccessToken ->
+      let proof =
+            proveTransactionsRefreshBody namedEnv namedAccessToken
+          body = mempty & plaidBodyEnv .~ env
+                        & plaidBodyAccessToken ?~ accessToken
+
+      in either (Left . PlaidError) (const (Right body)) proof
+  ))
 
 -- | Creates request body for /identity/get call
 -- https://plaid.com/docs/#identity

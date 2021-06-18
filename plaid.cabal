@@ -43,6 +43,7 @@ library
       Data.Api.Auth
       Data.Api.Types
       Data.Proof.TransactionsGetBody
+      Data.Proof.TransactionsRefreshBody
       Data.Proof.IdentityGetBody
       Data.Proof.IncomeGetBody
       Data.Proof.AuthGetBody

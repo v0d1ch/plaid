@@ -13,7 +13,6 @@ module Data.Api.Link
   , plaidExchangeToken
   ) where
 
-import           Data.Api.Types (executePost)
 import           Data.Common
 
 -- | Creates a public token
