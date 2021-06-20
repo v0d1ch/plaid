@@ -132,6 +132,7 @@ data PublicTokenCreate
 data PlaidTokenExchange
 data PlaidTransactionsGet
 data PlaidTransactionsRefresh
+data PlaidCategoriesGet
 data PlaidIdentityGet
 data PlaidIncomeGet
 
@@ -256,6 +257,9 @@ instance ToJSON (PlaidBody PlaidTransactionsRefresh) where
            , "secret"       .= (b ^. plaidBodyEnv . plaidEnvSecret)
            , "access_token" .= (b ^. plaidBodyPublicToken)
            ]
+
+instance ToJSON (PlaidBody PlaidCategoriesGet) where
+  toJSON _ = String ""
 
 instance ToJSON (PlaidBody PlaidIdentityGet) where
   toJSON b =
@@ -501,6 +505,41 @@ instance FromJSON PlaidTransactionsRefreshResponse where
     PlaidTransactionsRefreshResponse
       <$> o .: "request_id"
 
+data PlaidCategoriesGetCategories =
+  PlaidCategoriesGetCategories
+    { _plaidCategoriesGetCategoriesCategoryId :: Text
+    , _plaidCategoriesGetCategoriesGroup      :: Text
+    , _plaidCategoriesGetCategoriesHierarchy  :: [Text]
+    } deriving (Eq, Show)
+
+
+makeLenses ''PlaidCategoriesGetCategories
+
+$(deriveToJSON (defaultOptions { fieldLabelModifier = camel . drop 28 }) ''PlaidCategoriesGetCategories)
+
+instance FromJSON PlaidCategoriesGetCategories where
+  parseJSON = withObject "PlaidCategoriesGetCategories" $ \o ->
+    PlaidCategoriesGetCategories
+      <$> o .: "category_id"
+      <*> o .: "group"
+      <*> o .: "hierarchy"
+
+data PlaidCategoriesGetResponse =
+  PlaidCategoriesGetResponse
+    { _plaidCategoriesGetResponseCategories :: [PlaidCategoriesGetCategories]
+    , _plaidCategoriesGetResponseRequestId  :: Text
+    } deriving (Eq, Show)
+
+makeLenses ''PlaidCategoriesGetResponse
+
+$(deriveToJSON (defaultOptions { fieldLabelModifier = camel . drop 26 }) ''PlaidCategoriesGetResponse)
+
+instance FromJSON PlaidCategoriesGetResponse where
+  parseJSON = withObject "PlaidCategoriesGetResponse" $ \o ->
+    PlaidCategoriesGetResponse
+      <$> o .: "categories"
+      <*> o .: "request_id"
+
 data PlaidAuthGetResponse =
   PlaidAuthGetResponse
     { _plaidAuthGetResponseAccounts  :: [Account]
@@ -711,6 +750,7 @@ requestMap =
     [ ("/auth/get", responseAuthGet)
     , ("/transactions/get", responseTransactionsGet)
     , ("/transactions/refresh", responseTransactionsRefresh)
+    , ("/categories/get", responseCategoriesGet)
     , ("/public_token/create", responsePublicTokenCreate)
     , ("/item/public_token/exchange", responsePublicTokenExchange)
     , ("/identity/get", identityJson)

@@ -7,7 +7,6 @@ import           Data.ByteString.Lazy (ByteString, toStrict)
 import           Data.Either (isRight)
 import           Data.Plaid
 import           Data.Text (Text)
-import           Control.Monad.IO.Class (liftIO)
 import qualified Data.Text as T
 import           Data.Time (fromGregorian)
 import           Test.Hspec
@@ -131,10 +130,25 @@ spec = do
                            _plaidAccessTokenResponseAccessToken
                          )
 
-        let transactionsGetResult =
+        let transactionsRefreshResult =
               runTestPlaid $ runTestPostRequest "/transactions/refresh" transactionBody
-        liftIO $ print transactionsGetResult
-        ER.hoistEither (checkResult transactionsGetResult :: Either PlaidError PlaidTransactionsRefreshResponse)
+        ER.hoistEither (checkResult transactionsRefreshResult :: Either PlaidError PlaidTransactionsRefreshResponse)
+      isRight testResult `shouldBe` True
+
+  describe "Categories get" $ do
+    it "/categories/get" $ do
+      let result = runTestPlaid $ runTestPostRequest "/public_token/create" publicTokenBody
+      testResult <- ER.runExceptT $ do
+        PlaidPublicTokenResponse {..} <- ER.hoistEither (checkResult result :: Either PlaidError PlaidPublicTokenResponse)
+        exchangeBody <- ER.hoistEither (mkExchangePublicTokenEnv env _plaidPublicTokenResponsePublicToken)
+        let result' = runTestPlaid $ runTestPostRequest "/item/public_token/exchange" exchangeBody
+        PlaidAccessTokenResponse {..} <- ER.hoistEither (checkResult result' :: Either PlaidError PlaidAccessTokenResponse)
+        authBody <- ER.hoistEither (mkGetAuthEnv env _plaidAccessTokenResponseAccessToken)
+        let authGetResult = runTestPlaid $ runTestPostRequest "/auth/get" authBody
+        PlaidAuthGetResponse {..} <- ER.hoistEither (checkResult authGetResult :: Either PlaidError PlaidAuthGetResponse)
+        transactionBody <- ER.hoistEither (mkCreateCategoriesGetEnv env)
+        let res = runTestPlaid $ runTestPostRequest "/categories/get" transactionBody
+        ER.hoistEither (checkResult res :: Either PlaidError PlaidCategoriesGetResponse)
       isRight testResult `shouldBe` True
 
   describe "Balance json" $ do

@@ -5,6 +5,7 @@ module Data.Api.InternalPure
   , mkGetAuthEnv
   , mkCreateTransactionsGetEnv
   , mkCreateTransactionsRefreshEnv
+  , mkCreateCategoriesGetEnv
   , mkCreateIdentityGetEnv
   , mkCreateIncomeGetEnv
   ) where
@@ -115,6 +116,17 @@ mkCreateTransactionsRefreshEnv env accessToken =
 
       in either (Left . PlaidError) (const (Right body)) proof
   ))
+
+-- | Creates request body for /categories/get call
+-- https://plaid.com/docs/api/products/#categoriesget
+mkCreateCategoriesGetEnv
+  :: PlaidEnv
+  -> Either PlaidError (PlaidBody PlaidCategoriesGet)
+mkCreateCategoriesGetEnv env =
+  name env (\_namedEnv ->
+    let body = mempty & plaidBodyEnv .~ env
+    in Right body
+  )
 
 -- | Creates request body for /identity/get call
 -- https://plaid.com/docs/#identity
